@@ -6,13 +6,15 @@ struct ContentView: View {
     var body: some View {
         switch viewModel.step {
         case .start:
-            StartView { viewModel.proceedToGuide() }
+            StartView() // { viewModel.proceedToGuide() }
         case .guide:
-            GuideView { viewModel.step = .capture }
+            GuideView() // { viewModel.step = .capture }
         case .capture:
-            CaptureView(onPhotoTaken: viewModel.takePhoto)
+            // CaptureView(onPhotoTaken: viewModel.takePhoto)
+            CaptureView()
         case .result:
-            ResultView(result: viewModel.result!, onReset: viewModel.resetFlow)
+            // ResultView(result: viewModel.result!, onReset: viewModel.resetFlow)
+            ResultView()
         }
     }
 }
