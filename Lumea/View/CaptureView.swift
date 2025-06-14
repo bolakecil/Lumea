@@ -49,11 +49,13 @@ struct CaptureView: View {
                 
                 // Bottom instruction text
                 Text("Align your face within the circle")
-                    .font(.system(size: 16, weight: .medium))
-                    .padding()
-                    .background(.ultraThinMaterial)
+                    .font(.jakarta(size: 16))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color(.blue)) //gatau bjir warnanya apa, tak bisa cek di figma kwakwaowokowa
                     .cornerRadius(12)
-                    .padding(.bottom, 40)
+                
             }
             .padding(.horizontal)
         }
