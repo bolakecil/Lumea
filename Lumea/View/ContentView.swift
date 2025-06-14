@@ -2,13 +2,13 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var viewModel = PhotoFlowViewModel()
-
+    
     var body: some View {
         switch viewModel.step {
         case .start:
-            StartView() // { viewModel.proceedToGuide() }
+            StartView(onStart: viewModel.proceedToGuide) // { viewModel.proceedToGuide() }
         case .guide:
-            GuideView() // { viewModel.step = .capture }
+            GuideView(onStartCapture: {viewModel.step = .capture}) // { viewModel.step = .capture }
         case .capture:
             // CaptureView(onPhotoTaken: viewModel.takePhoto)
             CaptureView()

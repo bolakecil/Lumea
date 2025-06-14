@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct StartView: View {
+    var onStart: () -> Void = { }
+    
     var body: some View {
         ZStack {
             Color.background
@@ -20,6 +22,7 @@ struct StartView: View {
                     .multilineTextAlignment(.center)
                 Button(action: {
                     print("Button tapped")
+                    onStart()
                 }) {
                     Text("Get Started")
                         .font(.jakarta(size: 18))
