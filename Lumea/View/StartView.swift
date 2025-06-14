@@ -9,7 +9,7 @@ struct StartView: View {
                 Image("shade")
                     .resizable()
                     .rotationEffect(.degrees(90))
-                    .frame(width: 600, height: 400)
+                    .frame(width: 650, height: 450)
                 Text("Find your perfect Makeup Shade")
                     .font(.bethany(size: 35))
                     .padding(.top, 40)
