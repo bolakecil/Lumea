@@ -1,10 +1,3 @@
-//
-//  LumeaApp.swift
-//  Lumea
-//
-//  Created by Jessica Lynn on 13/06/25.
-//
-
 import SwiftUI
 
 @main
