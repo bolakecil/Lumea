@@ -33,41 +33,36 @@ struct ResultView: View {
                         Text("Suggested Shades")
                             .font(.bethany(size: 28))
                             .padding(.bottom, 20)
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.background)
-                                .frame(height: 160)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1)
-                                )
-                            HStack{
+                        VStack(spacing: 0) {
+                            HStack() {
                                 Spacer()
-                                VStack{
+                                VStack {
                                     Image("shade")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 100)
-                                    Text("Warm Beige")
+                                    Text("Warm Mable")
                                         .font(.jakarta(size: 17))
                                 }
                                 Spacer()
                                 Rectangle()
-                                    .frame(width: 1, height: 160)
+                                    .frame(width: 1)
+                                    .frame(maxHeight: .infinity) // let it stretch
                                 Spacer()
-                                VStack{
+                                VStack {
                                     Image("shade")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(height: 100)
-                                    Text("Warm Beige")
+                                    Text("Warm Ivory")
                                         .font(.jakarta(size: 17))
                                 }
                                 Spacer()
                                 Rectangle()
-                                    .frame(width: 1, height: 160)
+                                    .frame(width: 1)
+                                    .frame(maxHeight: .infinity) // let it stretch
                                 Spacer()
-                                VStack{
+                                VStack {
                                     Image("shade")
                                         .resizable()
                                         .scaledToFit()
@@ -77,58 +72,74 @@ struct ResultView: View {
                                 }
                                 Spacer()
                             }
+                            .frame(height: 160)
+
+                            Rectangle()
+                                .frame(height: 1)
+
+                            Button(action: {
+                                print("Try Me Now tapped")
+                            }) {
+                                Text("Try Me Now!")
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .foregroundStyle(Color.white)
+                                    .background(Color.first)
+                            }
+                            .buttonStyle(.plain)
                         }
-                    }
-                    .padding(.top, 50)
-                    VStack(alignment: .leading){
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black, lineWidth: 1)
+                        )
+
+                        
+                        
                         Text("You may want to try these too!")
                             .font(.bethany(size: 28))
                             .padding(.bottom, 20)
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.background)
-                                .frame(height: 160)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.black, lineWidth: 1)
-                                )
-                            HStack{
-                                Spacer()
-                                VStack{
-                                    Image("shade")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 100)
-                                    Text("Gold Jewelry")
-                                        .font(.jakarta(size: 17))
-                                }
-                                Spacer()
-                                Rectangle()
-                                    .frame(width: 1, height: 160)
-                                Spacer()
-                                VStack{
-                                    Image("shade")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 100)
-                                    Text("Brown Shirt")
-                                        .font(.jakarta(size: 17))
-                                }
-                                Spacer()
-                                Rectangle()
-                                    .frame(width: 1, height: 160)
-                                Spacer()
-                                VStack{
-                                    Image("shade")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(height: 100)
-                                    Text("Brown Hair")
-                                        .font(.jakarta(size: 17))
-                                }
-                                Spacer()
+                            .padding(.top, 60)
+                        HStack{
+                            Spacer()
+                            VStack{
+                                Image("shade")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
+                                Text("Gold Jewelry")
+                                    .font(.jakarta(size: 17))
                             }
+                            Spacer()
+                            Rectangle()
+                                .frame(width: 1, height: 160)
+                            Spacer()
+                            VStack{
+                                Image("shade")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
+                                Text("Brown Shirt")
+                                    .font(.jakarta(size: 17))
+                            }
+                            Spacer()
+                            Rectangle()
+                                .frame(width: 1, height: 160)
+                            Spacer()
+                            VStack{
+                                Image("shade")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
+                                Text("Brown Hair")
+                                    .font(.jakarta(size: 17))
+                            }
+                            Spacer()
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black, lineWidth: 1)
+                        )
+                        
                         HStack{
                             Button(action: {
                                 print("Button tapped")
@@ -156,15 +167,14 @@ struct ResultView: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 70)
-                                    .background(Color.secondary)
+                                    .background(Color.second)
                                     .cornerRadius(20)
                             }
                             .padding(.leading, 5)
                         }
                         .padding(.top, 70)
                     }
-                    .padding(.vertical, 50)
-                    
+                    .padding(.top, 50)
                 }
                 .padding(.horizontal, 85)
             }

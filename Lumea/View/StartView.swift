@@ -29,7 +29,7 @@ struct StartView: View {
                         .font(.jakarta(size: 18))
                         .foregroundColor(.white)
                         .frame(width: 200, height: 70)
-                        .background(Color.secondary)
+                        .background(Color.second)
                         .cornerRadius(20)
                 }
                 .padding(.top, 50)
