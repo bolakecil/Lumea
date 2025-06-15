@@ -10,6 +10,7 @@ struct StartView: View {
             VStack{
                 Image("shade")
                     .resizable()
+                    .scaledToFit()
                     .rotationEffect(.degrees(90))
                     .frame(width: 650, height: 450)
                 Text("Find your perfect Makeup Shade")
