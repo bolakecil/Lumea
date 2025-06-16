@@ -95,3 +95,5 @@ iOSInjectionProject/
 
 # project specific
 measure/
+.DS_Store
+**/.DS_Store
