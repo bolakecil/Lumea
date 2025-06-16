@@ -13,7 +13,7 @@ struct StartView: View {
                     .scaledToFit()
                     .rotationEffect(.degrees(90))
                     .frame(width: 650, height: 450)
-                Text("Find your perfect Makeup Shade")
+                Text("Discover Shade That May Suit You!")
                     .font(.bethany(size: 35))
                     .padding(.top, 40)
                 Text("Get personalized shade recommendations that blend seamlessly with your unique skin tone and undertone")

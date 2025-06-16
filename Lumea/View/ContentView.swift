@@ -13,8 +13,11 @@ struct ContentView: View {
             // CaptureView(onPhotoTaken: viewModel.takePhoto)
             CaptureView()
         case .result:
-            // ResultView(result: viewModel.result!, onReset: viewModel.resetFlow)
-            ResultView()
+            if let result = viewModel.result {
+                ResultView(result: result, viewModel: PhotoFlowViewModel())
+            } else {
+                Text("No result available.") // fallback in case something breaks
+            }
         }
     }
 }

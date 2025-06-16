@@ -1,12 +1,11 @@
-//
-//  PhotoFlowViewModel.swift
-//  Lumea
-//
-//  Created by Jessica Lynn on 13/06/25.
-//
-
 import SwiftUI
 
+struct VisualAssets {
+    let shadeRecommendations: [String]  // Add this
+    let shirtAsset: String
+    let hairAsset: String
+    let accessoryAsset: String
+}
 
 class PhotoFlowViewModel: ObservableObject {
     enum Step {
@@ -38,5 +37,25 @@ class PhotoFlowViewModel: ObservableObject {
         step = .start
         capturedImage = nil
         result = nil
+    }
+}
+
+extension PhotoFlowViewModel {
+    func resolvedAssets(for result: PhotoAnalysisResult) -> VisualAssets {
+        let undertoneType = result.undertone.type.rawValue.capitalized // "Warm"
+        let shadeRecommendations = ShadeMapper.getShadeRecommendations(
+            for: result.undertone.type.rawValue,
+            skintoneGroup: result.skintoneGroup
+        )
+        let shirtAsset = "Shirt\(undertoneType)"           // "ShirtWarm"
+        let hairAsset = "Hair\(undertoneType)"             // "HairWarm"
+        let accessoryAsset = "Accessory\(undertoneType)"   // "AccessoryWarm"
+        
+        return VisualAssets(
+            shadeRecommendations: shadeRecommendations,
+            shirtAsset: shirtAsset,
+            hairAsset: hairAsset,
+            accessoryAsset: accessoryAsset
+        )
     }
 }
