@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BDEC29F22DFFF498001681A9 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = BDEC29F12DFFF498001681A9 /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8F8610EA2DFC1ABD00D65DAB /* Lumea.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lumea.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BDEC29F12DFFF498001681A9 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +50,7 @@
 		8F8610E12DFC1ABD00D65DAB = {
 			isa = PBXGroup;
 			children = (
+				BDEC29F12DFFF498001681A9 /* .gitignore */,
 				8F8610EC2DFC1ABD00D65DAB /* Lumea */,
 				8F8610EB2DFC1ABD00D65DAB /* Products */,
 			);
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BDEC29F22DFFF498001681A9 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,7 +273,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PL72Y5833B;
+				DEVELOPMENT_TEAM = 4QYKG649KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lumea/Info.plist;
@@ -296,7 +303,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PL72Y5833B;
+				DEVELOPMENT_TEAM = 4QYKG649KC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lumea/Info.plist;

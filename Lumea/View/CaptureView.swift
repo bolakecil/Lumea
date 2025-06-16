@@ -22,7 +22,7 @@ struct CaptureView: View {
                     Rectangle()
                         .overlay(
                             Ellipse()
-                                .frame(width: 260, height: 360)
+                                .frame(width: 460, height: 660)
                                 .blendMode(.destinationOut)
                         )
                         .compositingGroup()
@@ -36,12 +36,11 @@ struct CaptureView: View {
             VStack {
                 // Top bar buttons
                 HStack(spacing: 16) {
-                    statusButton(title: "Face Position", color: .green)
-                    statusButton(title: "Look Straight", color: .green)
+                    statusButton(title: "Face Position", color: viewModel.isFaceCentered ? .green : .red)
+                    statusButton(title: "Look Straight", color: viewModel.isFacingCamera ? .green : .red)
                     statusButton(
                         title: "Lighting",
-                        color: viewModel.brightness >= 120 ? .green : .red
-                    )
+                        color: viewModel.isBrightnessPass ? .green : .red)
                 }
                 .padding(.top, 40)
                 
@@ -50,11 +49,14 @@ struct CaptureView: View {
                 // Bottom instruction text
                 Text("Align your face within the circle")
                     .font(.jakarta(size: 16))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color(.blue)) //gatau bjir warnanya apa, tak bisa cek di figma kwakwaowokowa
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 14)
+                    .background(Color.background)
                     .cornerRadius(12)
+                    .padding(.bottom, 90)
+                
+                
                 
             }
             .padding(.horizontal)
@@ -65,11 +67,15 @@ struct CaptureView: View {
     @ViewBuilder
     private func statusButton(title: String, color: Color) -> some View {
         Text(title)
-            .font(.system(size: 14, weight: .semibold))
+            .font(.system(size: 22, weight: .semibold))
             .foregroundColor(.white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
             .background(color)
-            .cornerRadius(8)
+            .cornerRadius(10)
     }
+}
+
+#Preview {
+    CaptureView()
 }
