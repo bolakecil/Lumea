@@ -1,5 +1,6 @@
 import SwiftUI
 struct GuideView: View {
+    let onStartCapture: () -> Void
     var body: some View {
         VStack(spacing: 60) {
             Spacer()
@@ -101,7 +102,7 @@ struct GuideView: View {
 
             // Start Scan Button
             Button(action: {
-
+                onStartCapture()
             }) {
                 Text("Start Scan")
                     .font(.jakarta(size: 18))
@@ -121,17 +122,7 @@ struct GuideView: View {
 }
 
 #Preview {
-    GuideView()
-}
-    
-    var onStartCapture: () -> Void = { }
-    
-    var body: some View {
-        Text("GuideView")
-        
-        Button("Start Capture") {
-            print(">>> Start Capture <<<")
-            onStartCapture()
-        }
-    }
+    GuideView(onStartCapture: {
+        print("Start capture tapped")
+    })
 }

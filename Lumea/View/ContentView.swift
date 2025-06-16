@@ -14,9 +14,9 @@ struct ContentView: View {
             CaptureView()
         case .result:
             if let result = viewModel.result {
-                ResultView(result: result, viewModel: PhotoFlowViewModel())
+                ResultView(result: result, viewModel: viewModel)
             } else {
-                Text("No result available.") // fallback in case something breaks
+                Text("No result available.")
             }
         }
     }
