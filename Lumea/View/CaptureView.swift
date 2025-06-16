@@ -36,8 +36,8 @@ struct CaptureView: View {
             VStack {
                 // Top bar buttons
                 HStack(spacing: 16) {
-                    statusButton(title: "Face Position", color: .green)
-                    statusButton(title: "Look Straight", color: .green)
+                    statusButton(title: "Face Position", color: viewModel.isFaceCentered ? .green : .red)
+                    statusButton(title: "Look Straight", color: viewModel.isFacingCamera ? .green : .red)
                     statusButton(
                         title: "Lighting",
                         color: viewModel.brightness >= 120 ? .green : .red

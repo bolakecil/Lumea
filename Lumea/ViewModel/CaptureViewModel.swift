@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreImage
 import AVFoundation
+import Vision
 
 struct CameraPreview: UIViewRepresentable {
     class CameraView: UIView {
@@ -44,9 +45,17 @@ struct CameraPreview: UIViewRepresentable {
 
 class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     @Published var brightness: Double = 0.0
+    @Published var isFacingCamera: Bool = false
+    @Published var isFaceCentered: Bool = false
 
     let session = AVCaptureSession()
     private let context = CIContext()
+    
+    private let faceDetectionRequest: VNDetectFaceLandmarksRequest = {
+        let request = VNDetectFaceLandmarksRequest()
+        request.revision = VNDetectFaceLandmarksRequestRevision3
+        return request
+    }()
 
     override init() {
         super.init()
@@ -78,32 +87,109 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
         session.startRunning()
     }
 
-    // Called for each frame captured
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+            guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let extent = ciImage.extent
-        let inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.width, w: extent.height)
+            let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+            let extent = ciImage.extent
+            let inputExtent = CIVector(x: extent.origin.x, y: extent.origin.y, z: extent.width, w: extent.height)
 
-        guard let filter = CIFilter(name: "CIAreaAverage") else { return }
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
-        filter.setValue(inputExtent, forKey: kCIInputExtentKey)
+            guard let filter = CIFilter(name: "CIAreaAverage") else { return }
+            filter.setValue(ciImage, forKey: kCIInputImageKey)
+            filter.setValue(inputExtent, forKey: kCIInputExtentKey)
 
-        guard let outputImage = filter.outputImage else { return }
-        var bitmap = [UInt8](repeating: 0, count: 4)
-        context.render(outputImage,
-                       toBitmap: &bitmap,
-                       rowBytes: 4,
-                       bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
-                       format: .RGBA8,
-                       colorSpace: nil)
+            guard let outputImage = filter.outputImage else { return }
+            var bitmap = [UInt8](repeating: 0, count: 4)
+            context.render(outputImage,
+                           toBitmap: &bitmap,
+                           rowBytes: 4,
+                           bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                           format: .RGBA8,
+                           colorSpace: nil)
 
-        let avgBrightness = (Double(bitmap[0]) + Double(bitmap[1]) + Double(bitmap[2])) / 3.0
+            let avgBrightness = (Double(bitmap[0]) + Double(bitmap[1]) + Double(bitmap[2])) / 3.0
 
-        DispatchQueue.main.async {
-            self.brightness = avgBrightness
-            print("💡 Brightness: \(avgBrightness)")
+            DispatchQueue.main.async {
+                self.brightness = avgBrightness
+            }
+
+            // Face detection
+            let faceDetectionRequest = VNDetectFaceLandmarksRequest()
+            let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .leftMirrored, options: [:])
+
+            func averageY(from region: VNFaceLandmarkRegion2D) -> CGFloat {
+                let points = region.normalizedPoints
+                guard !points.isEmpty else { return 0 }
+                return points.map { $0.y }.reduce(0, +) / CGFloat(points.count)
+            }
+
+            do {
+                try handler.perform([faceDetectionRequest])
+                guard let results = faceDetectionRequest.results else {
+                    DispatchQueue.main.async {
+                        self.isFacingCamera = false
+                        self.isFaceCentered = false
+                    }
+                    return
+                }
+
+                let screenSize = UIScreen.main.bounds.size
+                let ellipseRect = CGRect(
+                    x: (screenSize.width - 260) / 2,
+                    y: (screenSize.height - 360) / 2,
+                    width: 260,
+                    height: 360
+                )
+
+                var faceIsCentered = false
+
+                let alignedFace = results.contains { face in
+                    // Orientation check
+                    guard
+                        let yaw = face.yaw?.doubleValue,
+                        let roll = face.roll?.doubleValue,
+                        let landmarks = face.landmarks,
+                        let leftEye = landmarks.leftEye,
+                        let nose = landmarks.nose,
+                        let mouth = landmarks.outerLips
+                    else {
+                        return false
+                    }
+
+                    let isYawAligned = abs(yaw) < 0.05
+                    let isRollAligned = abs(roll) < 0.05
+
+                    let eyeY = averageY(from: leftEye)
+                    let noseY = averageY(from: nose)
+                    let mouthY = averageY(from: mouth)
+
+                    let eyeToNose = noseY - eyeY
+                    let noseToMouth = mouthY - noseY
+                    let pitchDeviation = abs(eyeToNose - noseToMouth)
+                    let isPitchAligned = pitchDeviation < 0.02
+
+                    let faceCenter = CGPoint(
+                        x: face.boundingBox.midX * screenSize.width,
+                        y: (1 - face.boundingBox.midY) * screenSize.height
+                    )
+                    faceIsCentered = ellipseRect.contains(faceCenter)
+
+//                    print("🎯 Yaw: \(yaw), Roll: \(roll), Pitch Δ: \(pitchDeviation), Centered: \(faceIsCentered)")
+
+                    return isYawAligned && isRollAligned && isPitchAligned
+                }
+
+                DispatchQueue.main.async {
+                    self.isFacingCamera = alignedFace
+                    self.isFaceCentered = faceIsCentered
+                }
+
+            } catch {
+                print("❌ Face detection failed:", error)
+                DispatchQueue.main.async {
+                    self.isFacingCamera = false
+                    self.isFaceCentered = false
+                }
+            }
         }
-    }
 }
