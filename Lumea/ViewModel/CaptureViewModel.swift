@@ -46,9 +46,38 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
     @Published var isBrightnessPass: Bool = false
     @Published var isFacingCamera: Bool = false
     @Published var isFaceCentered: Bool = false
+    @Published var skintoneLabel: String = ""
+    @Published var undertoneLabel: String = ""
+    @Published var result: PhotoAnalysisResult?
+
     @Published var countdown: Int = 0
     @Published var showSheet = false
     @Published var capturedImage: UIImage?
+    @Published var instructionText: String = "Align your face within the circle"
+    
+    private var capturedRawImage: UIImage?
+    private var pendingSkintone: SkintoneResult?
+    private var pendingUndertone: UndertoneResult?
+    private var pendingSkintoneGroup: String?
+
+    
+    private let modelProcessor = ModelProcessor()
+    
+    
+    
+    
+    private func updateInstructionText() {
+        if !isFaceCentered {
+            instructionText = "Align your face within the circle"
+        } else if !isFacingCamera {
+            instructionText = "Look straight at the camera"
+        } else if !isBrightnessPass {
+            instructionText = "Brighten the room to see your skin clearly"
+        } else {
+            instructionText = "Perfect! Ready to capture"
+        }
+    }
+    
     
     private var greenStateStart: Date?
     private var isCountingDown = false
@@ -126,9 +155,12 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
     
         let isBrightnessPass = avgBrightness > 80
 
-        DispatchQueue.main.async {
-            self.isBrightnessPass = isBrightnessPass
-        }
+//        DispatchQueue.main.async {
+//            self.isBrightnessPass = isBrightnessPass
+//            self.isFacingCamera = alignedFace
+//            self.isFaceCentered = faceIsCentered
+//            self.updateInstructionText() // Explicitly update the instruction
+//        }
 
         // Face detection
         let faceDetectionRequest = VNDetectFaceLandmarksRequest()
@@ -170,9 +202,9 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
             }
             
             var faceIsCentered: Bool = false
+            var alignedFace: Bool = false
 
-            let alignedFace = results.contains { face in
-                // Orientation check
+            for face in results {
                 guard
                     let yaw = face.yaw?.doubleValue,
                     let roll = face.roll?.doubleValue,
@@ -181,7 +213,7 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                     let nose = landmarks.nose,
                     let mouth = landmarks.outerLips
                 else {
-                    return false
+                    continue
                 }
 
                 let isYawAligned = abs(yaw) < 0.05
@@ -195,9 +227,7 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                 let noseToMouth = mouthY - noseY
                 let pitchDeviation = abs(eyeToNose - noseToMouth)
                 let isPitchAligned = pitchDeviation < 0.05
-                
-                
-                //Facing camera
+
                 let screenSize = UIScreen.main.bounds.size
                 let ellipseRect = CGRect(
                     x: (screenSize.width - 460) / 2,
@@ -213,17 +243,30 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                     height: face.boundingBox.size.height * screenSize.height
                 )
 
-                faceIsCentered = ellipseRect.contains(faceRect)
+                if isYawAligned && isRollAligned && isPitchAligned {
+                    alignedFace = true
 
-//                    print("🎯 Yaw: \(yaw), Roll: \(roll), Pitch Δ: \(pitchDeviation), Centered: \(faceIsCentered)")
+                    if ellipseRect.contains(faceRect) {
+                        faceIsCentered = true
+                    }
 
-                return isYawAligned && isRollAligned && isPitchAligned
+                    break
+                }
+
             }
 
             DispatchQueue.main.async {
                 self.isFacingCamera = alignedFace
                 self.isFaceCentered = faceIsCentered
+                self.isBrightnessPass = isBrightnessPass
+                self.updateInstructionText()
             }
+
+
+//            DispatchQueue.main.async {
+//                self.isFacingCamera = alignedFace
+//                self.isFaceCentered = faceIsCentered
+//            }
 
         } catch {
             print("❌ Face detection failed:", error)
@@ -278,6 +321,170 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
 //        isCountingDown = false
 //        countdown = 0
 //    }
+    
+    private func extractCheekRegion(from face: VNFaceObservation, in image: CIImage) -> CIImage? {
+        guard let landmarks = face.landmarks,
+              let contour = landmarks.faceContour else { return nil }
+        
+        // Pick one cheek point (e.g., left cheek around index 5)
+        let cheekPoint = contour.normalizedPoints[5] // adjust index if needed
+        
+        // Convert normalized point to image coordinates
+        let boundingBox = face.boundingBox
+        let imageSize = image.extent.size
+        
+        let x = boundingBox.origin.x * imageSize.width + cheekPoint.x * boundingBox.width * imageSize.width
+        let y = (1 - boundingBox.origin.y - boundingBox.height + cheekPoint.y * boundingBox.height) * imageSize.height
+        
+        // Define a small square around that point (e.g., 40x40 pixels)
+        let cheekRect = CGRect(x: x - 20, y: y - 20, width: 40, height: 40)
+        
+        // Crop it
+        return image.cropped(to: cheekRect)
+    }
+    
+    private func detectSkintone(from image: UIImage) {
+        guard let pixelBuffer = image.pixelBuffer() else {
+            print("❌ Failed to convert image to pixelBuffer")
+            return
+        }
+        modelProcessor?.process(pixelBuffer: pixelBuffer) { result in
+            DispatchQueue.main.async {
+                self.skintoneLabel = result ?? "Unknown"
+//                print("🎨 Skintone: \(self.skintoneLabel)")
+            }
+        }
+    }
+    
+    private func detectSkinUndertone(from image: UIImage) {
+        guard let ciImage = CIImage(image: image) else { return }
+
+        // Run Vision again on the image to get face and landmarks
+        let handler = VNImageRequestHandler(ciImage: ciImage, orientation: .leftMirrored)
+        let request = VNDetectFaceLandmarksRequest()
+
+        do {
+            try handler.perform([request])
+            guard let face = request.results?.first else { return }
+
+            if let cheekCrop = extractCheekRegion(from: face, in: ciImage) {
+                // Use same CIAreaAverage logic
+                let avgColor = cheekCrop.applyingFilter("CIAreaAverage", parameters: [kCIInputExtentKey: CIVector(cgRect: cheekCrop.extent)])
+                var bitmap = [UInt8](repeating: 0, count: 4)
+                let context = CIContext()
+                context.render(avgColor,
+                               toBitmap: &bitmap,
+                               rowBytes: 4,
+                               bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                               format: .RGBA8,
+                               colorSpace: CGColorSpaceCreateDeviceRGB())
+
+                let r = Double(bitmap[0]) / 255
+                let g = Double(bitmap[1]) / 255
+                let b = Double(bitmap[2]) / 255
+
+                let undertone = classifySkinUndertone(fromRGB: r, g: g, b: b)
+                self.undertoneLabel = undertone
+//                print("📸 Detected undertone from cheek: \(undertone)")
+            }
+        } catch {
+            print("❌ Landmark detection failed:", error)
+        }
+    }
+
+    private func classifySkinUndertone(fromRGB r: Double, g: Double, b: Double) -> String {
+        // Convert RGB to CIELAB (you can use a simple conversion or a library for better accuracy)
+        let lab = rgbToCIELAB(r, g, b)
+        
+        // Based on CIELAB values, classify undertone
+        if lab.b < -20 {
+            return "Cool"
+        } else if lab.b > 20 {
+            return "Warm"
+        } else {
+            return "Neutral"
+        }
+    }
+
+    // Simple RGB to CIELAB conversion function (you can improve it with better math)
+    private func rgbToCIELAB(_ r: Double, _ g: Double, _ b: Double) -> (L: Double, a: Double, b: Double) {
+        // Convert RGB to XYZ
+        let x = 0.4124564 * r + 0.3575761 * g + 0.1804375 * b
+        let y = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b
+        let z = 0.0193339 * r + 0.1191920 * g + 0.9503041 * b
+        
+        // Normalize XYZ
+        let xn = 0.95047
+        let yn = 1.00000
+        let zn = 1.08883
+        
+        let xNorm = x / xn
+        let yNorm = y / yn
+        let zNorm = z / zn
+        
+        // Convert to CIELAB
+        let fx: Double = (xNorm > 0.008856) ? pow(xNorm, 1/3) : (xNorm * 903.3 + 16) / 116
+        let fy: Double = (yNorm > 0.008856) ? pow(yNorm, 1/3) : (yNorm * 903.3 + 16) / 116
+        let fz: Double = (zNorm > 0.008856) ? pow(zNorm, 1/3) : (zNorm * 903.3 + 16) / 116
+        
+        let L = 116 * fy - 16
+        let a = 500 * (fx - fy)
+        let b = 200 * (fy - fz)
+        
+        return (L, a, b)
+    }
+    
+    private func createAnalysisResult() {
+        guard let image = capturedRawImage,
+              !skintoneLabel.isEmpty,
+              !undertoneLabel.isEmpty else {
+            print("❌ Missing data for analysis result")
+            return
+        }
+        
+        // Direct CSV lookup since ML model should return exact hex values
+        let skintoneGroup = CSVSkinMapper.getSkintoneGroup(for: skintoneLabel)
+        
+        if !CSVSkinMapper.isValidSkinHex(skintoneLabel) {
+            print("⚠️ Warning: Unexpected hex color from ML model: \(skintoneLabel)")
+        }
+        
+        // Use your RGB-detected undertone (from detectSkinUndertone)
+        let undertone = undertoneLabel // "Warm", "Cool", "Neutral"
+        
+        // Get shade recommendations using both
+        let shadeRecommendations = ShadeMapper.getShadeRecommendations(
+            for: undertone,
+            skintoneGroup: skintoneGroup
+        )
+        
+        // Create the result
+        let undertoneType = UndertoneType(rawValue: undertone.lowercased()) ?? .neutral
+        
+        let analysisResult = PhotoAnalysisResult(
+            undertone: UndertoneResult(
+                type: undertoneType,
+                accessoryColors: [],
+                shirtColors: [],
+                hairColors: []
+            ),
+            skintone: SkintoneResult(
+                label: skintoneLabel, // ML-detected hex color
+                shadeRecommendations: shadeRecommendations
+            ),
+            skintoneGroup: skintoneGroup, // CSV-mapped group
+            rawImage: image
+        )
+        
+        print("🎯 Final result:")
+        print("   Skintone: \(skintoneLabel) → Group: \(skintoneGroup)")
+        print("   Undertone: \(undertone) (from RGB analysis)")
+        print("   Recommendations: \(shadeRecommendations)")
+        
+        DispatchQueue.main.async {
+            self.result = analysisResult
+        }
+    }
 
     private func capturePhoto(from sampleBuffer: CMSampleBuffer) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
@@ -288,9 +495,18 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
             let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: .leftMirrored)
             DispatchQueue.main.async {
                 self.capturedImage = image
+                self.capturedRawImage = image  // needed later
                 self.showSheet = true
+
+                self.detectSkintone(from: image)
+                self.detectSkinUndertone(from: image)
+                print(self.skintoneLabel)
+                print(self.undertoneLabel)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.createAnalysisResult()
+                }
             }
+
         }
     }
-    
 }

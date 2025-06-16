@@ -9,6 +9,7 @@ import SwiftUI
 import AVFoundation
 
 struct CaptureView: View {
+    let photoFlowViewModel: PhotoFlowViewModel
     @StateObject private var viewModel = CaptureViewModel()
     
     var body: some View {
@@ -43,7 +44,7 @@ struct CaptureView: View {
                 Spacer()
                 
                 // Bottom instruction text
-                Text("Align your face within the circle")
+                Text(viewModel.instructionText)
                     .font(.jakarta(size: 16))
                     .foregroundColor(.black)
                     .padding(.horizontal, 24)
@@ -57,14 +58,20 @@ struct CaptureView: View {
             }
             .padding(.horizontal)
         }
-        .sheet(isPresented: $viewModel.showSheet) {
-            if let image = viewModel.capturedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
+//        .sheet(isPresented: $viewModel.showSheet) {
+//            if let image = viewModel.capturedImage {
+//                Image(uiImage: image)
+//                    .resizable()
+//                    .scaledToFit()
+//            }
+//        }
+        .onReceive(viewModel.$result) { result in
+            if let result = result {
+                // Pass the result to PhotoFlowViewModel and navigate to result
+                photoFlowViewModel.result = result
+                photoFlowViewModel.step = .result
             }
         }
-//        .onChange(of: viewModel.capturedImage, perform: <#(UIImage?) -> Void#>)
     }
     
     // Reusable status button
@@ -80,6 +87,6 @@ struct CaptureView: View {
     }
 }
 
-#Preview {
-    CaptureView()
-}
+//#Preview {
+//    CaptureView()
+//}

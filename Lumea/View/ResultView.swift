@@ -114,8 +114,11 @@ struct ResultView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .foregroundStyle(Color.white)
-                                    .background(Color.first)
                             }
+                            .background(
+                                RoundedCorners(topLeft: 0, topRight: 0, bottomLeft: 10, bottomRight: 10)
+                                    .fill(Color.first)
+                            )
                             .buttonStyle(.plain)
                         }
                         .overlay(
@@ -146,7 +149,7 @@ struct ResultView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 90)
-                                Text("Shirt")
+                                Text("Shirt Color")
                                     .font(.jakarta(size: 17))
                                     .padding(.top, 3)
                             }
@@ -158,7 +161,7 @@ struct ResultView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 90)
-                                Text("Hair")
+                                Text("Hair Color")
                                     .font(.jakarta(size: 17))
                                     .padding(.top, 3)
                             }
@@ -223,7 +226,7 @@ struct ResultView: View {
             label: "#9D7A54",
             shadeRecommendations: [] // This will be populated by ShadeMapper
         ),
-        skintoneGroup: "Medium", // Add this
+        skintoneGroup: "Medium",
         rawImage: UIImage()
     )
 

@@ -5,26 +5,21 @@ struct GuideView: View {
         VStack(spacing: 60) {
             Spacer()
             
-            // Face Illustration Placeholder
             Image("face 1")
                 .resizable()
                 .frame(width: 282, height: 306)
             
             VStack (spacing:12){
-                // Title
                 Text("Let's Get You Ready to Scan")
                     .font(.bethany(size: 35))
 
-                // Subtitle
                 Text("Follow these tips to scan your skin more accurately.")
                     .font(.jakarta(size: 17))
 
             }
             
             
-            // Instructions
             HStack(spacing: 16) {
-                
                 VStack (spacing:20){
                     Image("face 2")
                         .resizable()

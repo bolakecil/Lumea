@@ -11,7 +11,7 @@ struct ContentView: View {
             GuideView(onStartCapture: {viewModel.step = .capture}) // { viewModel.step = .capture }
         case .capture:
             // CaptureView(onPhotoTaken: viewModel.takePhoto)
-            CaptureView()
+            CaptureView(photoFlowViewModel: viewModel) // Pass the viewModel
         case .result:
             if let result = viewModel.result {
                 ResultView(result: result, viewModel: viewModel)

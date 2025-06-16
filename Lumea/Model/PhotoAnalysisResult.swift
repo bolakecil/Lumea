@@ -1,9 +1,3 @@
-//
-//  PhotoAnalysisResult.swift
-//  Lumea
-//
-//  Created by Jessica Lynn on 13/06/25.
-//
 import SwiftUI
 
 struct PhotoAnalysisResult {
@@ -27,9 +21,9 @@ struct PhotoAnalysisResult {
 
 struct UndertoneResult {
     let type: UndertoneType
-    let accessoryColors: [String] // e.g., ["Gold", "Rose Gold", "Copper"]
-    let shirtColors: [String]     // e.g., ["Teal", "Berry", "Charcoal"]
-    let hairColors: [String]      // e.g., ["Ash Brown", "Cool Black", "Platinum"]
+    let accessoryColors: [String]
+    let shirtColors: [String]
+    let hairColors: [String]
 }
 
 enum UndertoneType: String {
