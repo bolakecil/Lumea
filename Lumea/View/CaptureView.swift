@@ -29,10 +29,6 @@ struct CaptureView: View {
                 }
                 .ignoresSafeArea()
             
-            
-            
-            
-            
             VStack {
                 // Top bar buttons
                 HStack(spacing: 16) {
@@ -61,6 +57,14 @@ struct CaptureView: View {
             }
             .padding(.horizontal)
         }
+        .sheet(isPresented: $viewModel.showSheet) {
+            if let image = viewModel.capturedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+//        .onChange(of: viewModel.capturedImage, perform: <#(UIImage?) -> Void#>)
     }
     
     // Reusable status button
