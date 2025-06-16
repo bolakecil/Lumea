@@ -40,8 +40,7 @@ struct CaptureView: View {
                     statusButton(title: "Look Straight", color: viewModel.isFacingCamera ? .green : .red)
                     statusButton(
                         title: "Lighting",
-                        color: viewModel.brightness >= 120 ? .green : .red
-                    )
+                        color: viewModel.isBrightnessPass ? .green : .red)
                 }
                 .padding(.top, 40)
                 

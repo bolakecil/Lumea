@@ -44,7 +44,7 @@ struct CameraPreview: UIViewRepresentable {
 }
 
 class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-    @Published var brightness: Double = 0.0
+    @Published var isBrightnessPass: Bool = false
     @Published var isFacingCamera: Bool = false
     @Published var isFaceCentered: Bool = false
 
@@ -108,9 +108,11 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                            colorSpace: nil)
 
             let avgBrightness = (Double(bitmap[0]) + Double(bitmap[1]) + Double(bitmap[2])) / 3.0
+        
+            let isBrightnessPass = avgBrightness > 80
 
             DispatchQueue.main.async {
-                self.brightness = avgBrightness
+                self.isBrightnessPass = isBrightnessPass
             }
 
             // Face detection
@@ -168,11 +170,14 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                     let pitchDeviation = abs(eyeToNose - noseToMouth)
                     let isPitchAligned = pitchDeviation < 0.02
 
-                    let faceCenter = CGPoint(
-                        x: face.boundingBox.midX * screenSize.width,
-                        y: (1 - face.boundingBox.midY) * screenSize.height
+                    let faceRect = CGRect(
+                        x: face.boundingBox.origin.x * screenSize.width,
+                        y: (1 - face.boundingBox.origin.y - face.boundingBox.size.height) * screenSize.height,
+                        width: face.boundingBox.size.width * screenSize.width,
+                        height: face.boundingBox.size.height * screenSize.height
                     )
-                    faceIsCentered = ellipseRect.contains(faceCenter)
+
+                    faceIsCentered = ellipseRect.contains(faceRect)
 
 //                    print("🎯 Yaw: \(yaw), Roll: \(roll), Pitch Δ: \(pitchDeviation), Centered: \(faceIsCentered)")
 
