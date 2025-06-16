@@ -84,7 +84,10 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
         }
 
         session.commitConfiguration()
-        session.startRunning()
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.session.startRunning()
+        }
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -124,6 +127,25 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                 guard !points.isEmpty else { return 0 }
                 return points.map { $0.y }.reduce(0, +) / CGFloat(points.count)
             }
+        
+            func isFaceFullyInsideEllipse(faceRect: CGRect, ellipseRect: CGRect) -> Bool {
+                func isPointInEllipse(_ point: CGPoint, in rect: CGRect) -> Bool {
+                    let dx = point.x - rect.midX
+                    let dy = point.y - rect.midY
+                    let rx = rect.width / 2
+                    let ry = rect.height / 2
+                    return (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1
+                }
+
+                let corners = [
+                    faceRect.origin,
+                    CGPoint(x: faceRect.maxX, y: faceRect.minY),
+                    CGPoint(x: faceRect.minX, y: faceRect.maxY),
+                    CGPoint(x: faceRect.maxX, y: faceRect.maxY)
+                ]
+
+                return corners.allSatisfy { isPointInEllipse($0, in: ellipseRect) }
+            }
 
             do {
                 try handler.perform([faceDetectionRequest])
@@ -134,16 +156,8 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                     }
                     return
                 }
-
-                let screenSize = UIScreen.main.bounds.size
-                let ellipseRect = CGRect(
-                    x: (screenSize.width - 260) / 2,
-                    y: (screenSize.height - 360) / 2,
-                    width: 460,
-                    height: 660
-                )
-
-                var faceIsCentered = false
+                
+                var faceIsCentered: Bool = false
 
                 let alignedFace = results.contains { face in
                     // Orientation check
@@ -168,7 +182,17 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                     let eyeToNose = noseY - eyeY
                     let noseToMouth = mouthY - noseY
                     let pitchDeviation = abs(eyeToNose - noseToMouth)
-                    let isPitchAligned = pitchDeviation < 0.02
+                    let isPitchAligned = pitchDeviation < 0.05
+                    
+                    
+                    //Facing camera
+                    let screenSize = UIScreen.main.bounds.size
+                    let ellipseRect = CGRect(
+                        x: (screenSize.width - 460) / 2,
+                        y: (screenSize.height - 660) / 2,
+                        width: 460,
+                        height: 660
+                    )
 
                     let faceRect = CGRect(
                         x: face.boundingBox.origin.x * screenSize.width,
@@ -197,4 +221,5 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                 }
             }
         }
+    
 }
