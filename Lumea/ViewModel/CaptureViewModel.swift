@@ -139,8 +139,8 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                 let ellipseRect = CGRect(
                     x: (screenSize.width - 260) / 2,
                     y: (screenSize.height - 360) / 2,
-                    width: 260,
-                    height: 360
+                    width: 460,
+                    height: 660
                 )
 
                 var faceIsCentered = false
