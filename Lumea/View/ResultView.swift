@@ -5,9 +5,10 @@ struct ResultView: View {
     @State private var isShowingEmailForm = false
     @State var email: String = ""
     @State private var capturedImage: UIImage?
-    @State private var
-    = false
+    @State private var emailSent = false
     @State private var didTapSend: Bool = false
+    @State private var isShowingTryOn = false
+
     
     let result: PhotoAnalysisResult
     
@@ -23,6 +24,12 @@ struct ResultView: View {
 
     var matchingShades: [String] {
         result.skintone.shadeRecommendations
+    }
+    
+    var shadeOptions: [ShadeOption] {
+        matchingShades.map {
+            ShadeOption(name: $0, hex: $0, imageName: $0) // assuming imageName = hex
+        }
     }
 
     var undertoneLabel: String {
@@ -122,7 +129,9 @@ struct ResultView: View {
                                 .frame(height: 1)
 
                             Button(action: {
-                                print("Try Me Now tapped")
+                                withAnimation{
+                                    isShowingTryOn = true
+                                }
                             }) {
                                 Text("Try Me Now!")
                                     .frame(maxWidth: .infinity)
@@ -139,6 +148,13 @@ struct ResultView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.black, lineWidth: 1)
                         )
+                        NavigationLink(
+                            destination: ARFaceTryOnView(shades: shadeOptions),
+                            isActive: $isShowingTryOn
+                        ) {
+                            EmptyView()
+                        }
+                        .hidden()
                         
                         Text("You may want to try these too!")
                             .font(.bethany(size: 28))
