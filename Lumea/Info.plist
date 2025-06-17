@@ -15,5 +15,17 @@
     
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>We need access to save your screenshots.</string>
+    
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+
+
+
 </dict>
 </plist>
