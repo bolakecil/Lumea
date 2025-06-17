@@ -8,6 +8,8 @@ struct ResultView: View {
     @State private var emailSent = false
     @State private var didTapSend: Bool = false
     @State private var isShowingTryOn = false
+    @State private var selectedShadeColor: UIColor = .white
+
 
     
     let result: PhotoAnalysisResult
@@ -26,11 +28,19 @@ struct ResultView: View {
         result.skintone.shadeRecommendations
     }
     
+//    var shadeOptions: [ShadeOption] {
+//        matchingShades.map {
+//            ShadeOption(name: $0, hex: $0, imageName: $0) // assuming imageName = hex
+//        }
+//    }
+    
     var shadeOptions: [ShadeOption] {
-        matchingShades.map {
-            ShadeOption(name: $0, hex: $0, imageName: $0) // assuming imageName = hex
+        ShadeMapper.getShadeMatches(for: result.undertone.type.rawValue, skintoneGroup: result.skintoneGroup).map {
+            ShadeOption(name: $0.name, hex: $0.hex, imageName: $0.name)
         }
     }
+
+
 
     var undertoneLabel: String {
         result.undertone.type.rawValue
@@ -129,7 +139,11 @@ struct ResultView: View {
                                 .frame(height: 1)
 
                             Button(action: {
-                                withAnimation{
+                                if let hex = matchingShades.first,
+                                   let color = UIColor(hex: hex) {
+                                    selectedShadeColor = color
+                                }
+                                withAnimation {
                                     isShowingTryOn = true
                                 }
                             }) {
@@ -148,13 +162,17 @@ struct ResultView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.black, lineWidth: 1)
                         )
-                        NavigationLink(
-                            destination: ARFaceTryOnView(shades: shadeOptions),
-                            isActive: $isShowingTryOn
-                        ) {
-                            EmptyView()
+//                        NavigationLink(
+//                            destination: ARFaceTryOnView(shades: shadeOptions),
+//                            isActive: $isShowingTryOn
+//                        ) {
+//                            EmptyView()
+//                        }
+//                        .hidden()
+                        .fullScreenCover(isPresented: $isShowingTryOn) {
+                            ARFaceTryOnContainerView(shadeOptions: shadeOptions)
                         }
-                        .hidden()
+
                         
                         Text("You may want to try these too!")
                             .font(.bethany(size: 28))

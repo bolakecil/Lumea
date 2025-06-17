@@ -15,7 +15,7 @@ struct ShadeOption: Identifiable {
     let imageName: String
 
     var color: UIColor {
-        UIColor(named: hex) ?? .brown
+        return UIColor(hex: hex) ?? .white
     }
 
     static let placeholder = ShadeOption(name: "Default", hex: "#9D7A54", imageName: "default_swipe")
