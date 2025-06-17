@@ -1,24 +1,29 @@
+//
+//  ResultSnapVIew.swift
+//  Lumea
+//
+//  Created by Nicholas  on 17/06/25.
+//
+
 import SwiftUI
 
-struct ResultView: View {
-    @State private var isShowingEmailForm = false
-    
+struct ResultSnapView: View {
     let result: PhotoAnalysisResult
     
     let viewModel: PhotoFlowViewModel
-
+    
     var assetInfo: VisualAssets {
         viewModel.resolvedAssets(for: result)
     }
-
+    
     var skinColor: Color {
         Color(hex: result.skintone.label) ?? .gray
     }
-
+    
     var matchingShades: [String] {
         result.skintone.shadeRecommendations
     }
-
+    
     var undertoneLabel: String {
         result.undertone.type.rawValue
     }
@@ -58,7 +63,7 @@ struct ResultView: View {
                         .padding(.bottom, 20)
                     Text(skinToneDescription)
                         .multilineTextAlignment(.center)
-//                        .font(.jakarta(size: 17))
+                    //                        .font(.jakarta(size: 17))
                     //hee hee hee cant be formatted otherwise
                     
                     VStack(alignment: .leading){
@@ -105,23 +110,8 @@ struct ResultView: View {
                                 Spacer()
                             }
                             .frame(height: 160)
-
-                            Rectangle()
-                                .frame(height: 1)
-
-                            Button(action: {
-                                print("Try Me Now tapped")
-                            }) {
-                                Text("Try Me Now!")
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .foregroundStyle(Color.white)
-                            }
-                            .background(
-                                RoundedCorners(topLeft: 0, topRight: 0, bottomLeft: 10, bottomRight: 10)
-                                    .fill(Color.first)
-                            )
-                            .buttonStyle(.plain)
+                        
+                            
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -169,48 +159,12 @@ struct ResultView: View {
                             }
                             Spacer()
                         }
-
+                        
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.black, lineWidth: 1)
                         )
                         
-                        HStack{
-                            Button(action: {
-                                viewModel.resetFlow()
-                            }) {
-                                Text("Try Again")
-                                    .font(.jakarta(size: 18))
-                                    .foregroundColor(.black)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 70)
-                                    .cornerRadius(20)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.black, lineWidth: 1)
-                                    )
-                            }
-                            .padding(.trailing, 5)
-                            Spacer()
-                            Button(action: {
-                                print("Button tapped")
-                                isShowingEmailForm = true
-                            }) {
-                                Text("Share Result")
-                                    .font(.jakarta(size: 18))
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 70)
-                                    .background(Color.second)
-                                    .cornerRadius(20)
-                            }
-                            .padding(.leading, 5)
-                            .fullScreenCover(isPresented: $isShowingEmailForm) {
-                                EmailFormView(result: result, viewModel: viewModel)
-                            }
-
-                        }
-                        .padding(.top, 70)
                     }
                     .padding(.top, 50)
                 }
@@ -235,6 +189,7 @@ struct ResultView: View {
         skintoneGroup: "Medium",
         rawImage: UIImage()
     )
-
-    ResultView(result: sampleResult, viewModel: PhotoFlowViewModel())
+    
+    ResultSnapView(result: sampleResult, viewModel: PhotoFlowViewModel())
 }
+
