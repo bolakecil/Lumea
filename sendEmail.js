@@ -1,5 +1,8 @@
+require('dotenv').config({ path: './ath.env' });
 const nodemailer = require('nodemailer');
 const multer = require('multer');
+
+
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -13,13 +16,13 @@ async function start(req, res){
         port: 465,
         secure: true,
         auth:{
-            user: 'nicholaschao1507@gmail.com',
-            pass: 'rvig ipfv ftuh dkdu'
+            user: process.env.EMAIL_USER || "",
+            pass: process.env.EMAIL_PASS || "" 
         }
     })
     
     const mailOptions =  {
-        from: '"Nicholas Chao" <nicholaschao1507@gmail.com>',
+        from: `"Nicholas Chao" <${process.env.EMAIL_USER}>`,
         to: to, // 👈 use the recipient email from Swift app
         subject: 'Lumea Skin Analysis Report',
         text: 'Please find attached your skin analysis report.',
