@@ -1,13 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const { start, upload } = require('./sendEmail'); // import your function
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(bodyParser.json());
 
 app.post('/sendEmail', upload.single('attachment'), start); // delegate to your own function
 

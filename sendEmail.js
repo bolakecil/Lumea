@@ -24,8 +24,14 @@ async function start(req, res){
     const mailOptions =  {
         from: `"Nicholas Chao" <${process.env.EMAIL_USER}>`,
         to: to, // 👈 use the recipient email from Swift app
-        subject: 'Lumea Skin Analysis Report',
-        text: 'Please find attached your skin analysis report.',
+        subject: 'Your Personal Makeup Shade Match Is Here! 💄✨',
+        html: `
+            <p>Hi Lumeans,</p>
+            <p>Thank you for using our shade scan feature! 🎉</p>
+            <p>We’ve analyzed your facial scan and here’s your personalized result.</p>`,
+
+
+        
         attachments: file ? [
             {
                 filename: 'Skin_Analysis_Report.jpg',
@@ -44,12 +50,6 @@ async function start(req, res){
         console.error('Error sending email:', error);
         res.status(500).json({ error: 'Failed to send email' });
     }
-
-
-    // console.log(info.messageId);
-    // console.log('Email sent successfully');
-    // return info;
 }
 
 module.exports = { start, upload }
-// start()
