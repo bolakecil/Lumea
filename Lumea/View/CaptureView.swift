@@ -57,17 +57,13 @@ struct CaptureView: View {
                 
             }
             .padding(.horizontal)
+            
+            if viewModel.isLoading {
+                LoadingCompView()
+            }
         }
-//        .sheet(isPresented: $viewModel.showSheet) {
-//            if let image = viewModel.capturedImage {
-//                Image(uiImage: image)
-//                    .resizable()
-//                    .scaledToFit()
-//            }
-//        }
         .onReceive(viewModel.$result) { result in
             if let result = result {
-                // Pass the result to PhotoFlowViewModel and navigate to result
                 photoFlowViewModel.result = result
                 photoFlowViewModel.step = .result
             }
@@ -88,5 +84,5 @@ struct CaptureView: View {
 }
 
 //#Preview {
-//    CaptureView()
+//    CaptureView(photoFlowViewModel: PhotoFlowViewModel())
 //}
