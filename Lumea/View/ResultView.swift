@@ -139,7 +139,7 @@ struct ResultView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 90)
-                                Text("Accessory")
+                                Text(assetInfo.AccessoriesAssetLabel)
                                     .font(.jakarta(size: 17))
                                     .padding(.top, 3)
                             }
@@ -151,7 +151,7 @@ struct ResultView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 90)
-                                Text("Shirt Color")
+                                Text(assetInfo.shirtAssetLabel)
                                     .font(.jakarta(size: 17))
                                     .padding(.top, 3)
                             }
@@ -163,7 +163,7 @@ struct ResultView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 90)
-                                Text("Hair Color")
+                                Text(assetInfo.hairAssetLabel)
                                     .font(.jakarta(size: 17))
                                     .padding(.top, 3)
                             }
@@ -220,21 +220,21 @@ struct ResultView: View {
     }
 }
 
-#Preview {
-    let sampleResult = PhotoAnalysisResult(
-        undertone: UndertoneResult(
-            type: .cool,
-            accessoryColors: [],
-            shirtColors: [],
-            hairColors: []
-        ),
-        skintone: SkintoneResult(
-            label: "#9D7A54",
-            shadeRecommendations: [] // This will be populated by ShadeMapper
-        ),
-        skintoneGroup: "Medium",
-        rawImage: UIImage()
-    )
-
-    ResultView(result: sampleResult, viewModel: PhotoFlowViewModel())
-}
+//#Preview {
+//    let sampleResult = PhotoAnalysisResult(
+//        undertone: UndertoneResult(
+//            type: .cool,
+//            accessoryColors: [],
+//            shirtColors: [],
+//            hairColors: []
+//        ),
+//        skintone: SkintoneResult(
+//            label: "#9D7A54",
+//            shadeRecommendations: [] // This will be populated by ShadeMapper
+//        ),
+//        skintoneGroup: "Medium",
+//        rawImage: UIImage()
+//    )
+//
+//    ResultView(result: sampleResult, viewModel: PhotoFlowViewModel())
+//}

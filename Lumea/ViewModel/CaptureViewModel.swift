@@ -55,6 +55,8 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
     @Published var capturedImage: UIImage?
     @Published var instructionText: String = "Align your face within the circle"
     
+    @Published var isLoading = false
+    
     private var capturedRawImage: UIImage?
     private var pendingSkintone: SkintoneResult?
     private var pendingUndertone: UndertoneResult?
@@ -154,13 +156,6 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
         let avgBrightness = (Double(bitmap[0]) + Double(bitmap[1]) + Double(bitmap[2])) / 3.0
     
         let isBrightnessPass = avgBrightness > 80
-
-//        DispatchQueue.main.async {
-//            self.isBrightnessPass = isBrightnessPass
-//            self.isFacingCamera = alignedFace
-//            self.isFaceCentered = faceIsCentered
-//            self.updateInstructionText() // Explicitly update the instruction
-//        }
 
         // Face detection
         let faceDetectionRequest = VNDetectFaceLandmarksRequest()
@@ -262,12 +257,6 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
                 self.updateInstructionText()
             }
 
-
-//            DispatchQueue.main.async {
-//                self.isFacingCamera = alignedFace
-//                self.isFaceCentered = faceIsCentered
-//            }
-
         } catch {
             print("❌ Face detection failed:", error)
             DispatchQueue.main.async {
@@ -293,34 +282,37 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
             
             DispatchQueue.main.async {
                 self.capturePhoto(from: sampleBuffer)
-                self.stopCamera()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    self.stopCamera()
+                }
             }
             
         } else {
             greenStateStart = nil
-//            stopCountdown()
+            stopCountdown()
         }
     }
-//    
-//    private func startCountdown(_ sampleBuffer: CMSampleBuffer) {
-//        isCountingDown = true
-//        countdown = 3
-//
-//        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
-//            self.countdown -= 1
-//            if self.countdown <= 0 {
-//                timer.invalidate()
-//                self.capturePhoto(from: sampleBuffer)
-//                self.isCountingDown = false
-//            }
-//        }
-//    }
-//
-//    private func stopCountdown() {
-//        countdownTimer?.invalidate()
-//        isCountingDown = false
-//        countdown = 0
-//    }
+    
+    private func startCountdown(_ sampleBuffer: CMSampleBuffer) {
+        isCountingDown = true
+        countdown = 3
+
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+            self.countdown -= 1
+            if self.countdown <= 0 {
+                timer.invalidate()
+                self.capturePhoto(from: sampleBuffer)
+                self.isCountingDown = false
+            }
+        }
+    }
+
+    private func stopCountdown() {
+        countdownTimer?.invalidate()
+        isCountingDown = false
+        countdown = 0
+    }
     
     private func extractCheekRegion(from face: VNFaceObservation, in image: CIImage) -> CIImage? {
         guard let landmarks = face.landmarks,
@@ -481,8 +473,10 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
         print("   Undertone: \(undertone) (from RGB analysis)")
         print("   Recommendations: \(shadeRecommendations)")
         
-        DispatchQueue.main.async {
+        isLoading = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             self.result = analysisResult
+            self.isLoading = false
         }
     }
 
