@@ -1,7 +1,16 @@
 import SwiftUI
+import MessageUI
 
 struct ResultView: View {
     @State private var isShowingEmailForm = false
+    @State var email: String = ""
+    @State private var capturedImage: UIImage?
+    @State private var emailSent = false
+    @State private var didTapSend: Bool = false
+    @State private var isShowingTryOn = false
+    @State private var selectedShadeColor: UIColor = .white
+
+
     
     let result: PhotoAnalysisResult
     
@@ -18,6 +27,20 @@ struct ResultView: View {
     var matchingShades: [String] {
         result.skintone.shadeRecommendations
     }
+    
+//    var shadeOptions: [ShadeOption] {
+//        matchingShades.map {
+//            ShadeOption(name: $0, hex: $0, imageName: $0) // assuming imageName = hex
+//        }
+//    }
+    
+    var shadeOptions: [ShadeOption] {
+        ShadeMapper.getShadeMatches(for: result.undertone.type.rawValue, skintoneGroup: result.skintoneGroup).map {
+            ShadeOption(name: $0.name, hex: $0.hex, imageName: $0.name)
+        }
+    }
+
+
 
     var undertoneLabel: String {
         result.undertone.type.rawValue
@@ -34,6 +57,12 @@ struct ResultView: View {
         } catch {
             return AttributedString("Unable to load description")
         }
+    }
+    
+    var isEmailValid: Bool {
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let emailRegex = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+        return !trimmed.isEmpty && trimmed.range(of: emailRegex, options: .regularExpression) != nil
     }
     
     var body: some View {
@@ -110,7 +139,13 @@ struct ResultView: View {
                                 .frame(height: 1)
 
                             Button(action: {
-                                print("Try Me Now tapped")
+                                if let hex = matchingShades.first,
+                                   let color = UIColor(hex: hex) {
+                                    selectedShadeColor = color
+                                }
+                                withAnimation {
+                                    isShowingTryOn = true
+                                }
                             }) {
                                 Text("Try Me Now!")
                                     .frame(maxWidth: .infinity)
@@ -127,6 +162,17 @@ struct ResultView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.black, lineWidth: 1)
                         )
+//                        NavigationLink(
+//                            destination: ARFaceTryOnView(shades: shadeOptions),
+//                            isActive: $isShowingTryOn
+//                        ) {
+//                            EmptyView()
+//                        }
+//                        .hidden()
+                        .fullScreenCover(isPresented: $isShowingTryOn) {
+                            ARFaceTryOnContainerView(shadeOptions: shadeOptions)
+                        }
+
                         
                         Text("You may want to try these too!")
                             .font(.bethany(size: 28))
@@ -205,9 +251,8 @@ struct ResultView: View {
                                     .cornerRadius(20)
                             }
                             .padding(.leading, 5)
-                            .fullScreenCover(isPresented: $isShowingEmailForm) {
-                                EmailFormView(result: result, viewModel: viewModel)
-                            }
+
+
 
                         }
                         .padding(.top, 70)
@@ -215,9 +260,135 @@ struct ResultView: View {
                     .padding(.top, 50)
                 }
                 .padding(.horizontal, 85)
+                
+                if isShowingEmailForm {
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                isShowingEmailForm = false
+                            }
+
+                        VStack(alignment: .center, spacing: 20) {
+                            Text("Send Screenshot via Email")
+                                .font(.headline)
+
+                            TextField("Email", text: $email)
+                                .autocapitalization(.none)
+                                .keyboardType(.emailAddress)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                                .frame(width: 250)
+                                .disabled(emailSent)
+                            
+                            if didTapSend && !isEmailValid {
+                                Text("Please enter a valid email address.")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+
+
+                            Button(action: {
+                                didTapSend = true
+                                
+                                if isEmailValid {
+                                    let screenSize = UIScreen.main.bounds.size
+                                    let view = ResultSnapView(result: result, viewModel: viewModel)
+                                        .frame(width: screenSize.width, height: screenSize.height)
+
+                                    if let image = captureView(view: view, size: screenSize) {
+                                        let opaqueImage = makeOpaqueImage(image)
+                                        sendEmailToServer(email: email, image: opaqueImage)
+                                        emailSent = true
+                                    }
+                                }
+                                
+                            }) {
+                                if emailSent {
+                                    Label("Email Sent!", systemImage: "checkmark.circle.fill")
+                                        .frame(width: 200)
+                                        .padding()
+                                        .foregroundColor(.white)
+                                        .background(Color.green)
+                                        .cornerRadius(10)
+                                } else {
+                                    Text("Send Email")
+                                        .frame(width: 200)
+                                        .padding()
+                                        .foregroundColor(.white)
+                                        .background(Color.second)
+                                        .cornerRadius(10)
+                                }
+                            }
+                            .disabled(emailSent)
+                        }
+                        .padding()
+                        .frame(width: 300)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .shadow(radius: 10)
+                    }
+                    .transition(.opacity.combined(with: .scale))
+                    .zIndex(1)
+                }
+
+
             }
         }
     }
+    
+    func sendEmailToServer(email: String, image: UIImage) {
+        guard let url = URL(string: "http://10.60.62.165:3000/sendEmail") else {
+            print("Invalid server URL")
+            return
+        }
+        
+        // Convert image to JPEG data
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("Failed to convert image to JPEG")
+            return
+        }
+        
+        // Create multipart form boundary
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        // Build multipart body
+        var body = Data()
+        
+        // Add email field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"to\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(email)\r\n".data(using: .utf8)!)
+        
+        // Add image field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"attachment\"; filename=\"screenshot.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // End boundary
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        // Send request
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Request failed: \(error.localizedDescription)")
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Server responded with status: \(httpResponse.statusCode)")
+            }
+        }.resume()
+    }
+    
 }
 
 //#Preview {
