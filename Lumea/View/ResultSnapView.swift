@@ -158,12 +158,14 @@ struct ResultSnapView: View {
                                     .padding(.top, 3)
                             }
                             Spacer()
+        
                         }
                         
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.black, lineWidth: 1)
                         )
+                        Spacer()
                         
                     }
                     .padding(.top, 50)

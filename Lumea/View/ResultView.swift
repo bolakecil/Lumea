@@ -339,22 +339,30 @@ struct ResultView: View {
     }
     
     func sendEmailToServer(email: String, image: UIImage) {
-        guard let url = URL(string: "http://10.60.62.165:3000/sendEmail") else {
+        print("=== Starting email send process ===")
+        print("Email: \(email)")
+        
+        guard let url = URL(string: "http://192.168.1.14:3000/sendEmail") else {
             print("Invalid server URL")
             return
         }
+        print("URL: \(url)")
         
         // Convert image to JPEG data
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             print("Failed to convert image to JPEG")
             return
         }
+        print("Image data size: \(imageData.count) bytes")
         
         // Create multipart form boundary
         let boundary = UUID().uuidString
+        print("Boundary: \(boundary)")
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 30 // Add timeout
         
         // Build multipart body
         var body = Data()
@@ -375,17 +383,33 @@ struct ResultView: View {
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         
         request.httpBody = body
+        print("Request body size: \(body.count) bytes")
+        print("Request headers: \(request.allHTTPHeaderFields ?? [:])")
+        
+        print("Sending request...")
         
         // Send request
         URLSession.shared.dataTask(with: request) { data, response, error in
+            print("=== Response received ===")
+            
             if let error = error {
                 print("Request failed: \(error.localizedDescription)")
+                print("Error details: \(error)")
                 return
             }
             
             if let httpResponse = response as? HTTPURLResponse {
                 print("Server responded with status: \(httpResponse.statusCode)")
+                print("Response headers: \(httpResponse.allHeaderFields)")
             }
+            
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                print("Response body: \(responseString)")
+            } else {
+                print("No response data or failed to decode")
+            }
+            
+            print("=== End response ===")
         }.resume()
     }
     
