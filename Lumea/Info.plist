@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict/>
+        <dict/>
+    </array>
+
+    <key>UIAppFonts</key>
+    <array>
+        <string>Bethany Elingston.otf</string>
+        <string>PlusJakartaSans-VariableFont_wght.ttf</string>
+    </array>
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>We need access to save your screenshots.</string>
+
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>We need local network access to send your scan results.</string>
+
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_http._tcp</string>
+    </array>
+
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>
