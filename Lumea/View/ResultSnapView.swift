@@ -47,6 +47,7 @@ struct ResultSnapView: View {
                 Color.background
                     .ignoresSafeArea(edges: .all)
                 VStack {
+                    Spacer()
                     Circle()
                         .fill(skinColor)
                         .frame(width: 85, height: 85)
@@ -167,6 +168,7 @@ struct ResultSnapView: View {
                         )                        
                     }
                     .padding(.top, 50)
+                    Spacer()
                 }
                 .padding(.horizontal, 85)
             }
