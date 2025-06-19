@@ -342,7 +342,7 @@ struct ResultView: View {
         print("=== Starting email send process ===")
         print("Email: \(email)")
         
-        guard let url = URL(string: "http://192.168.1.14:3000/sendEmail") else {
+        guard let url = URL(string: "http://10.60.62.165:3000/sendEmail") else {
             print("Invalid server URL")
             return
         }
