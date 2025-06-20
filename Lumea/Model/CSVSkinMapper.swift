@@ -1,7 +1,6 @@
 import Foundation
 
 class CSVSkinMapper {
-    // Based on your CSV - only mapping hex to skintone groups
     private static let skinGroupMappings: [String: String] = [
         "#373028": "Deep",
         "#422811": "Deep",

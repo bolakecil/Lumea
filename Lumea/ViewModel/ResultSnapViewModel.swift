@@ -1,10 +1,3 @@
-//
-//  ResultSnapViewModel.swift
-//  Lumea
-//
-//  Created by Nicholas  on 17/06/25.
-//
-
 import SwiftUI
 import UIKit
 

@@ -17,7 +17,6 @@ struct CaptureView: View {
             CameraPreview(session: viewModel.session)
                 .ignoresSafeArea()
             
-            // Dark overlay with hole
             Color.black.opacity(0.6)
                 .mask {
                     Rectangle()
@@ -31,7 +30,6 @@ struct CaptureView: View {
                 .ignoresSafeArea()
             
             VStack {
-                // Top bar buttons
                 HStack(spacing: 16) {
                     statusButton(title: "Face Position", color: viewModel.isFaceCentered ? .green : .red)
                     statusButton(title: "Look Straight", color: viewModel.isFacingCamera ? .green : .red)
@@ -43,7 +41,6 @@ struct CaptureView: View {
                 
                 Spacer()
                 
-                // Bottom instruction text
                 Text(viewModel.instructionText)
                     .font(.jakarta(size: 16))
                     .foregroundColor(.black)
@@ -70,7 +67,6 @@ struct CaptureView: View {
         }
     }
     
-    // Reusable status button
     @ViewBuilder
     private func statusButton(title: String, color: Color) -> some View {
         Text(title)
@@ -82,7 +78,3 @@ struct CaptureView: View {
             .cornerRadius(10)
     }
 }
-
-//#Preview {
-//    CaptureView(photoFlowViewModel: PhotoFlowViewModel())
-//}

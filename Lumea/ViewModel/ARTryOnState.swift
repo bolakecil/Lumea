@@ -1,11 +1,3 @@
-//
-//  ARTryOnState.swift
-//  Lumea
-//
-//  Created by Jessica Lynn on 17/06/25.
-//
-
-
 import SwiftUI
 import ARKit
 import Combine

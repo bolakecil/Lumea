@@ -6,12 +6,11 @@ struct ContentView: View {
     var body: some View {
         switch viewModel.step {
         case .start:
-            StartView(onStart: viewModel.proceedToGuide) // { viewModel.proceedToGuide() }
+            StartView(onStart: viewModel.proceedToGuide)
         case .guide:
-            GuideView(onStartCapture: {viewModel.step = .capture}) // { viewModel.step = .capture }
+            GuideView(onStartCapture: {viewModel.step = .capture})
         case .capture:
-            // CaptureView(onPhotoTaken: viewModel.takePhoto)
-            CaptureView(photoFlowViewModel: viewModel) // Pass the viewModel
+            CaptureView(photoFlowViewModel: viewModel)
         case .result:
             if let result = viewModel.result {
                 ResultView(result: result, viewModel: viewModel)

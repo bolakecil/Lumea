@@ -95,7 +95,6 @@ struct GuideView: View {
             }
 
 
-            // Start Scan Button
             Button(action: {
                 onStartCapture()
             }) {

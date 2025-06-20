@@ -1,11 +1,3 @@
-//
-//  ARFaceTryOnContainerView.swift
-//  Lumea
-//
-//  Created by Jessica Lynn on 17/06/25.
-//
-
-
 import SwiftUI
 
 struct ARFaceTryOnContainerView: View {
@@ -22,7 +14,6 @@ struct ARFaceTryOnContainerView: View {
                     .edgesIgnoringSafeArea(.all)
                     .frame(maxHeight: .infinity)
 
-                // Shade Picker
                 HStack {
                     ForEach(shadeOptions, id: \.id) { shade in
                         Spacer()
@@ -58,7 +49,6 @@ struct ARFaceTryOnContainerView: View {
                 .background(Color.background)
             }
 
-            // Dismiss button
             Button(action: {
                 dismiss()
             }) {

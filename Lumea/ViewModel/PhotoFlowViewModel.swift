@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct VisualAssets {
-    let shadeRecommendations: [String]  // Add this
+    let shadeRecommendations: [String]
     let shirtAsset: String
     let shirtAssetLabel: String
     let hairAsset: String
@@ -31,8 +31,6 @@ class PhotoFlowViewModel: ObservableObject {
     }
 
     private func analyze(_ image: UIImage) {
-        // Convert to CVPixelBuffer and run ML
-        // Update `result` and `step`
         step = .result
     }
 
@@ -51,9 +49,9 @@ extension PhotoFlowViewModel {
             for: result.undertone.type.rawValue,
             skintoneGroup: result.skintoneGroup
         )
-        let shirtAsset = "Shirt\(undertoneType)"           // "ShirtWarm"
-        let hairAsset = "Hair\(undertoneType)"             // "HairWarm"
-        let accessoryAsset = "Accessory\(undertoneType)"   // "AccessoryWarm"
+        let shirtAsset = "Shirt\(undertoneType)"
+        let hairAsset = "Hair\(undertoneType)"
+        let accessoryAsset = "Accessory\(undertoneType)" 
         
         let shirtLabel: String
         let hairLabel: String

@@ -1,10 +1,3 @@
-//
-//  CaptureViewModel.swift
-//  Lumea
-//
-//  Created by Nicholas  on 14/06/25.
-//
-
 import SwiftUI
 import CoreImage
 import AVFoundation
@@ -343,7 +336,6 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
         modelProcessor?.process(pixelBuffer: pixelBuffer) { result in
             DispatchQueue.main.async {
                 self.skintoneLabel = result ?? "Unknown"
-//                print("🎨 Skintone: \(self.skintoneLabel)")
             }
         }
     }
@@ -351,7 +343,6 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
     private func detectSkinUndertone(from image: UIImage) {
         guard let ciImage = CIImage(image: image) else { return }
 
-        // Run Vision again on the image to get face and landmarks
         let handler = VNImageRequestHandler(ciImage: ciImage, orientation: .leftMirrored)
         let request = VNDetectFaceLandmarksRequest()
 
@@ -377,7 +368,6 @@ class CaptureViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSamp
 
                 let undertone = classifySkinUndertone(fromRGB: r, g: g, b: b)
                 self.undertoneLabel = undertone
-//                print("📸 Detected undertone from cheek: \(undertone)")
             }
         } catch {
             print("❌ Landmark detection failed:", error)

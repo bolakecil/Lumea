@@ -28,12 +28,6 @@ struct ResultView: View {
         result.skintone.shadeRecommendations
     }
     
-//    var shadeOptions: [ShadeOption] {
-//        matchingShades.map {
-//            ShadeOption(name: $0, hex: $0, imageName: $0) // assuming imageName = hex
-//        }
-//    }
-    
     var shadeOptions: [ShadeOption] {
         ShadeMapper.getShadeMatches(for: result.undertone.type.rawValue, skintoneGroup: result.skintoneGroup).map {
             ShadeOption(name: $0.name, hex: $0.hex, imageName: $0.name)
@@ -367,12 +361,10 @@ struct ResultView: View {
         // Build multipart body
         var body = Data()
         
-        // Add email field
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"to\"\r\n\r\n".data(using: .utf8)!)
         body.append("\(email)\r\n".data(using: .utf8)!)
         
-        // Add image field
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"attachment\"; filename=\"screenshot.jpg\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
@@ -415,21 +407,3 @@ struct ResultView: View {
     
 }
 
-//#Preview {
-//    let sampleResult = PhotoAnalysisResult(
-//        undertone: UndertoneResult(
-//            type: .cool,
-//            accessoryColors: [],
-//            shirtColors: [],
-//            hairColors: []
-//        ),
-//        skintone: SkintoneResult(
-//            label: "#9D7A54",
-//            shadeRecommendations: [] // This will be populated by ShadeMapper
-//        ),
-//        skintoneGroup: "Medium",
-//        rawImage: UIImage()
-//    )
-//
-//    ResultView(result: sampleResult, viewModel: PhotoFlowViewModel())
-//}

@@ -1,10 +1,3 @@
-//
-//  ResultSnapVIew.swift
-//  Lumea
-//
-//  Created by Nicholas  on 17/06/25.
-//
-
 import SwiftUI
 
 struct ResultSnapView: View {

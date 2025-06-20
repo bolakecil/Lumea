@@ -3,10 +3,9 @@ import SwiftUI
 struct PhotoAnalysisResult {
     let undertone: UndertoneResult
     let skintone: SkintoneResult
-    let skintoneGroup: String  // Add this: "Deep", "Tan", "Medium", "Light", "Fair"
+    let skintoneGroup: String
     let rawImage: UIImage
 
-    // Optional: auto generate report info here
     var summaryText: String {
         """
         Undertone: \(undertone.type.rawValue)
@@ -31,6 +30,6 @@ enum UndertoneType: String {
 }
 
 struct SkintoneResult {
-    let label: String           // e.g., "#BEA07E"
-    let shadeRecommendations: [String] // e.g., foundation codes/names
+    let label: String
+    let shadeRecommendations: [String]
 }
